@@ -45,8 +45,6 @@ public class gui extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        fieldstring.setText("jTextField1");
-
         tabelread.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
@@ -154,7 +152,6 @@ public class gui extends javax.swing.JFrame {
                 model.baca();
                 model.bacajenis();
                  model.bacavaliditas();
-                System.out.println(model.getAryBesaran().toString());
                 model.printtoken();
                 String[] columnNames = {"String", "Jenis", "Token"};
                 Object[][] data = new Object[model.getAryString().size()][3];
@@ -169,6 +166,29 @@ public class gui extends javax.swing.JFrame {
                 }
                 for(Object q:model.getAryToken()){
                     data[k][2]=model.getAryToken().get(k).toString();
+                    k++;
+                }
+                tabelread.setModel(new DefaultTableModel(data, columnNames));
+                if(model.isStatus()==true){
+                    vieldvaliditas.setText("VALID");
+                }
+                else{
+                    vieldvaliditas.setText("TIDAK VALID");
+                }
+            }else{
+               model= new modeltekom();
+               model.inputtotoken(s);
+                model.bacajenis();
+                 model.bacavaliditas();
+                String[] columnNames = { "Jenis", "Token"};
+                Object[][] data = new Object[model.getAryToken().size()][2];
+                int j = 0, k = 0;
+                for (Object p : model.getAryBesaran()) {
+                    data[j][0] = model.getAryBesaran().get(j);
+                    j++;
+                }
+                for(Object q:model.getAryToken()){
+                    data[k][1]=model.getAryToken().get(k).toString();
                     k++;
                 }
                 tabelread.setModel(new DefaultTableModel(data, columnNames));

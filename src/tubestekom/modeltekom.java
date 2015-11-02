@@ -5,9 +5,9 @@
  */
 package tubestekom;
 
-import java.text.ParseException;
+
 import java.util.ArrayList;
-import javax.xml.bind.ParseConversionEvent;
+import java.util.Stack;
 
 /**
  *
@@ -21,6 +21,7 @@ public class modeltekom {
     private ArrayList aryString;
     private ArrayList<String> aryBesaran;
     private ArrayList<Character> aryToken;
+    private Stack stkgo;
     /*
      token 1`= var
      token 2 = real
@@ -51,6 +52,14 @@ public class modeltekom {
         return aryToken;
     }
 
+    public modeltekom() {
+        aryOperator = new ArrayList();
+        aryBesaran = new ArrayList();
+        aryToken = new ArrayList();
+        stkgo = new Stack();
+        status = false;
+    }
+
     public modeltekom(String kata) {
         this.kata = kata;
         aryOperand = new ArrayList();
@@ -58,17 +67,26 @@ public class modeltekom {
         aryString = new ArrayList();
         aryBesaran = new ArrayList();
         aryToken = new ArrayList();
+        stkgo = new Stack();
         status = false;
     }
 
     public boolean isvar(String s) {
         boolean stat = false;
         for (int i = 0; i < s.length(); i++) {
-            if (Character.isLetter(s.charAt(0)) || (i < s.length() - 1 && Character.isLetter(s.charAt(i)) && Character.isLetterOrDigit(s.charAt(i + 1)) && !Character.isDigit(s.charAt(i - 1)))) {
+            if ((Character.isLetter(s.charAt(0)) && Character.isLetterOrDigit(s.charAt(1)))
+                    || (i < s.length() - 1 && Character.isLetter(s.charAt(i)) && Character.isLetterOrDigit(s.charAt(i + 1)) && !Character.isDigit(s.charAt(i - 1)))) {
                 stat = true;
+                System.out.println("s");
             }
         }
         return stat;
+    }
+
+    public void inputtotoken(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            aryToken.add(s.charAt(i));
+        }
     }
 
     public boolean isint(String s) {
@@ -85,24 +103,6 @@ public class modeltekom {
         return stat;
     }
 
-    /*public boolean isreal(String s) {
-     boolean stat = false;
-     for (int i = 0; i < s.length(); i++) {
-     if (s.charAt(i) == 'e' && s.length() >= 3) {
-     if (Character.isDigit(s.charAt(i + 1)) || Character.isDigit(s.charAt(i - 1)) || (isoperator1(s.charAt(i + 1)) && Character.isDigit(s.charAt(i + 2)))) {
-     stat = true;
-     }
-     } else if (s.charAt(i) == ',') {
-     if (Character.isLetter(s.charAt(i - 1))) {
-     stat = false;
-     break;
-     } else {
-     stat = true;
-     }
-     }
-     }
-     return stat;
-     }*/
     public boolean isreal(String s) {
         boolean stat = false;
         try {
@@ -157,18 +157,10 @@ public class modeltekom {
         try {
             String temp = "";
             for (int i = 0; i < kata.length(); i++) {
-                /*if(invalidatcc1(kata, i)||invalidatcc1(kata, i+1)){
-                 continue;
-                 }*/
-                /*if (iskurungbuka(kata.charAt(i))) {
-                 tokenoperator(kata.charAt(i));
-                 aryOperator.add(kata.charAt(i));
-                 aryString.add(kata.charAt(i));
-                 }*/
                 if (isoperand(kata.charAt(i))) {
                     aryOperand.add(kata.charAt(i));
                 }
-                if (isoperator1(kata.charAt(i)) && (kata.charAt(i - 1) == 'e')) {
+                if (isoperator1(kata.charAt(i)) && (i>0&&kata.charAt(i - 1) == 'e')) {
                     aryOperand.add(kata.charAt(i));
                     continue;
                 }
@@ -185,11 +177,6 @@ public class modeltekom {
                     aryString.add(kata.charAt(i));
                     aryOperand.clear();
                 }
-                /*if (iskurungtutup(kata.charAt(i))) {
-                 tokenoperator(kata.charAt(i));
-                 aryOperator.add(kata.charAt(i));
-                 aryString.add(kata.charAt(i));
-                 }*/
             }
             for (Character c : aryOperand) {
                 temp = temp + c;
@@ -200,25 +187,28 @@ public class modeltekom {
             }
 
         } catch (Exception e) {
-            System.out.println(e.toString());
             e.printStackTrace();
         }
     }
 
     public boolean isgord(ArrayList<String> a) {
-        int l = 0;
-        int r = 0;
+        Object v = 'v';
+        Object temp = null;
         boolean stat = false;
-        for (String s : a) {
-            if (s.equals("left parenthesis")) {
-                l++;
-            } else if (s.equals("right parenthesis")) {
-                r++;
+        try {
+            for (String s : a) {
+                if (s.equals("left parenthesis")) {
+                    stkgo.push(v);
+                } else if (s.equals("right parenthesis")) {
+                    temp = stkgo.pop();
+                }
             }
-        }
-        if (l == r) {
-            stat = true;
-        } else {
+            if (stkgo.isEmpty()) {
+                stat = true;
+            } else {
+                stat = false;
+            }
+        } catch (Exception e) {
             stat = false;
         }
         return stat;
@@ -242,7 +232,7 @@ public class modeltekom {
 
     public void bacavaliditas() {
         for (int i = 0; i < aryBesaran.size(); i++) {
-            if (aryBesaran.get(i).equals("undefined")) {
+            if (aryBesaran.get(i).equals("undefined") || !isgord(aryBesaran)) {
                 status = false;
                 break;
             }
@@ -262,27 +252,14 @@ public class modeltekom {
                 } else {
                     status = true;
                 }
-            } else if (aryBesaran.get(i).equals("left parenthesis")) {
-                if(i==aryBesaran.size()-1||aryBesaran.get(i+1).equals("operator")){
-                    status=false;
-                    break;
-                }
-                for (int x = i + 1; x < aryBesaran.size(); x++) {
-                    if (!aryBesaran.get(x).equals("right parenthesis") && !isgord(aryBesaran) == true || i != aryBesaran.size() - 1) {
-                        status = false;
-                        break;
-                    } else{    
-                        status = true;
-                    }
-                }
-            } else if (aryBesaran.get(i).equals("right parenthesis")) {
+            }  else if (aryBesaran.get(i).equals("right parenthesis")) {
                 if (!isgord(aryBesaran) == true) {
                     status = false;
                     break;
                 } else {
                     status = true;
                 }
-            }
+            } 
         }
     }
 
@@ -303,10 +280,6 @@ public class modeltekom {
         return iskurungbuka(c) || iskurungtutup(c);
     }
 
-    public boolean invalidatcc1(String s, int i) {
-        return isoperator(s.charAt(1)) || iskurungtutup(s.charAt(1)) || (Character.isLetter(s.charAt(i)) && s.charAt(i + 1) == ',');
-    }
-
     public boolean isoperator(Character c) {
         return (c.equals('+') || c.equals('-') || c.equals('*') || c.equals('/'));
     }
@@ -316,7 +289,7 @@ public class modeltekom {
     }
 
     public boolean isoperand(Character c) {
-        return Character.isLetterOrDigit(c) || c.equals(',');
+        return !isoperator(c)&&!isgrouping(c);
     }
 
     public boolean iskurungbuka(Character c) {
@@ -325,18 +298,6 @@ public class modeltekom {
 
     public boolean iskurungtutup(Character c) {
         return c.equals(')');
-    }
-
-    public void bacaoperator(Character c) {
-        if (isoperator(c)) {
-            aryOperator.add(c);
-        }
-    }
-
-    public void bacaoperand(Character c) {
-        if (isoperand(c)) {
-            aryOperand.add(c);
-        }
     }
 
     public void printtoken() {
@@ -354,15 +315,15 @@ public class modeltekom {
     public void printarystring() {
         System.out.println(aryString.toString());
     }
-    public void bacajenis(){
-    for (Character c : aryToken) {
-            aryBesaran.add(bacajenistoken(c));
-        }
-    }
-    public void printaryjenis() {
+
+    public void bacajenis() {
         for (Character c : aryToken) {
             aryBesaran.add(bacajenistoken(c));
         }
+    }
+
+    public void printaryjenis() {
+        bacajenis();
         System.out.println(aryBesaran.toString().replace(',', '|'));
     }
 
