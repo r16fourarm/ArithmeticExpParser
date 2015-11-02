@@ -71,12 +71,12 @@ public class modeltekom {
     }
 
     public boolean isvar(String s) {
-        boolean stat = false ;
+        boolean stat = false;
         for (int i = 0; i < s.length(); i++) {
             /*if ((s.length() == 1 && Character.isLetter(0)) || (Character.isLetter(s.charAt(0)) && (s.length() > 1 && Character.isLetterOrDigit(s.charAt(1)))) || (i < s.length() - 1 && Character.isLetter(s.charAt(i)) && Character.isLetterOrDigit(s.charAt(i + 1)) && !Character.isDigit(s.charAt(i - 1)))) {
              stat = true;
              }*/
-            stat = (isreal(s) || isint(s) || !Character.isLetterOrDigit(s.charAt(i))||isoperator(s.charAt(i))||Character.isDigit(s.charAt(0))) ? false : true;
+            stat = (isreal(s) || isint(s) || !Character.isLetterOrDigit(s.charAt(i)) || isoperator(s.charAt(i)) || Character.isDigit(s.charAt(0))) ? false : true;
         }
         return stat;
     }
@@ -152,10 +152,26 @@ public class modeltekom {
                 if (isoperand(kata.charAt(i))) {
                     aryOperand.add(kata.charAt(i));
                 }
-                
-                if (isoperator1(kata.charAt(i)) && i > 0 && (kata.charAt(i - 1) == 'e')) {
-                    aryOperand.add(kata.charAt(i));
-                    continue;
+
+                if (isoperator1(kata.charAt(i))) {
+                    if (kata.charAt(0) == 'e'||((i>0&&kata.charAt(i-1)=='e')&&(i>=2&&(!Character.isDigit(kata.charAt(i-2))||isoperator(kata.charAt(i-2)))))||iskurungbuka(kata.charAt(i+1))) {
+                        String temp3 = "";
+                        for (Character c : aryOperand) {
+                            temp3 = temp3 + c;
+                        }
+                        if (!aryOperand.isEmpty()) {
+                            tokenoperand(temp3);
+                            aryString.add(temp3);
+                        }
+                        tokenoperator(kata.charAt(i));
+                        aryString.add(kata.charAt(i));
+                        aryOperand.clear();
+                        continue;
+
+                    } else if (i > 0 && (kata.charAt(i - 1) == 'e')) {
+                        aryOperand.add(kata.charAt(i));
+                        continue;
+                    }
                 }
                 if (isoperator(kata.charAt(i)) || iskurungbuka(kata.charAt(i)) || iskurungtutup(kata.charAt(i))) {
                     String temp1 = "";
