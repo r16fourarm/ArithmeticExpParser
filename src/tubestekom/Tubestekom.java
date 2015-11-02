@@ -18,8 +18,6 @@ public class Tubestekom {
        gui g = new gui();
        g.setVisible(true);
        modeltekom m = new modeltekom();
-        System.out.println(m.isoperand('+'));
-
     }
     
 }

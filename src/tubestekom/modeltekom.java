@@ -5,7 +5,6 @@
  */
 package tubestekom;
 
-
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -72,13 +71,12 @@ public class modeltekom {
     }
 
     public boolean isvar(String s) {
-        boolean stat = false;
+        boolean stat = false ;
         for (int i = 0; i < s.length(); i++) {
-            if ((Character.isLetter(s.charAt(0)) && Character.isLetterOrDigit(s.charAt(1)))
-                    || (i < s.length() - 1 && Character.isLetter(s.charAt(i)) && Character.isLetterOrDigit(s.charAt(i + 1)) && !Character.isDigit(s.charAt(i - 1)))) {
-                stat = true;
-                System.out.println("s");
-            }
+            /*if ((s.length() == 1 && Character.isLetter(0)) || (Character.isLetter(s.charAt(0)) && (s.length() > 1 && Character.isLetterOrDigit(s.charAt(1)))) || (i < s.length() - 1 && Character.isLetter(s.charAt(i)) && Character.isLetterOrDigit(s.charAt(i + 1)) && !Character.isDigit(s.charAt(i - 1)))) {
+             stat = true;
+             }*/
+            stat = (isreal(s) || isint(s) || !Character.isLetterOrDigit(s.charAt(i))||isoperator(s.charAt(i))||Character.isDigit(s.charAt(0))) ? false : true;
         }
         return stat;
     }
@@ -90,13 +88,10 @@ public class modeltekom {
     }
 
     public boolean isint(String s) {
-        boolean stat = false;
+        boolean stat;
         try {
             Integer x = Integer.parseInt(s);
-            if (x == null) {
-            } else {
-                stat = true;
-            }
+            stat = (x == null) ? false : true;
         } catch (Exception e) {
             stat = false;
         }
@@ -104,13 +99,10 @@ public class modeltekom {
     }
 
     public boolean isreal(String s) {
-        boolean stat = false;
+        boolean stat;
         try {
             Double x = Double.parseDouble(s);
-            if (x == null) {
-            } else {
-                stat = true;
-            }
+            stat = (x == null) ? false : true;
         } catch (Exception w) {
             stat = false;
         }
@@ -160,7 +152,8 @@ public class modeltekom {
                 if (isoperand(kata.charAt(i))) {
                     aryOperand.add(kata.charAt(i));
                 }
-                if (isoperator1(kata.charAt(i)) && (i>0&&kata.charAt(i - 1) == 'e')) {
+                
+                if (isoperator1(kata.charAt(i)) && i > 0 && (kata.charAt(i - 1) == 'e')) {
                     aryOperand.add(kata.charAt(i));
                     continue;
                 }
@@ -252,14 +245,14 @@ public class modeltekom {
                 } else {
                     status = true;
                 }
-            }  else if (aryBesaran.get(i).equals("right parenthesis")) {
+            } else if (aryBesaran.get(i).equals("right parenthesis")) {
                 if (!isgord(aryBesaran) == true) {
                     status = false;
                     break;
                 } else {
                     status = true;
                 }
-            } 
+            }
         }
     }
 
@@ -289,7 +282,7 @@ public class modeltekom {
     }
 
     public boolean isoperand(Character c) {
-        return !isoperator(c)&&!isgrouping(c);
+        return !isoperator(c) && !isgrouping(c);
     }
 
     public boolean iskurungbuka(Character c) {
